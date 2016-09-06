@@ -7,7 +7,6 @@
 1. build() -  builds up a neural network of given size - no. of layers, size of each layer. Returns a table of theta matrices.
 2. getLayer() - returns the theta matrix corresponding lo **layer(i)** and **layer(i+1)**
 3. forward() - propagates input across the neural network and returns the final output vector.
-4. 
 
 ### LG API :- (tales boolean inputs and returns boolean output)
 1. AND - logical **AND** of two inputs
