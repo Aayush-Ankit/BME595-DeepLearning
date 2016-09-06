@@ -9,5 +9,8 @@
 3. forward() - propagates input across the neural network and returns the final output vector.
 4. 
 
-### LG API :-
-1. 
+### LG API :- (tales boolean inputs and returns boolean output)
+1. AND - logical **AND** of two inputs
+2. OR - logical **OR** of two inputs
+3. NOT - logical **NOT** of an inputs
+4. XOR - logical **XOR** of two inputs
