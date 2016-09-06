@@ -12,8 +12,8 @@ in_vec = torch.Tensor(theta_num[1],2)
 out_vec1 = in_vec:t()
 for i = 1,(theta_num:size(1)-1) do
    out_vec1 = torch.cat(out_vec1,torch.ones(out_vec1:size(1),1),2) * a.getLayer(i)
+   out_vec1 = (((out_vec1:mul(-1)):exp()):add(1)):pow(-1)
 end
-(((out_vec1:mul(-1)):exp()):add(1)):pow(-1)
 out_vec2 = a.forward(in_vec)
 
 print (out_vec1)
