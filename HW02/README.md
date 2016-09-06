@@ -1,4 +1,4 @@
-### *** I am not using a local table inside the NeuralNetwork API , rather declare a global table in the script that calls the NN API and the logicGates API***
+### ***_ I am not using a local table inside the NeuralNetwork API , rather declare a global table in the script that calls the NN API and the logicGates API _***
 #HW02 - NeuralNetwork (NN) API and LogicGate (LG) API
 
 ## NN API has three functions build(), getLayer() and forward().
