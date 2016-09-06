@@ -4,5 +4,5 @@
 ## LG API has four functions AND, OR, NOT, XOR.
 
 ### NN API functions :-
-1.
-2.
+1. build() -  builds up a neural network of given size - no. of layers, size of each layer. Returns a table of theta matrices.
+2. getLayer() - returns the theta matrix corresponding lo *layer(i)* and *layer(i+1)*
