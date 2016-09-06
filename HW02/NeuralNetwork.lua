@@ -29,9 +29,10 @@ function NeuralNetwork.forward (x)
    for i = 1,(#tbl) do
       temp = tbl[i]
       out = torch.cat(out, torch.ones(out:size(1),1),2)* temp
+      out = (((out:mul(-1)):exp()):add(1)):pow(-1)
    end
 
-   return (((out:mul(-1)):exp()):add(1)):pow(-1)
+   return out
 end
 
 return NeuralNetwork
