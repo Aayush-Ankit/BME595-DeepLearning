@@ -12,7 +12,8 @@ function NeuralNetwork.build (x)
    -- create an empty table
    --local tbl = {}
    destroy()
-   for i = 1,(x:size(1)-1) do
+   --for i = 1,(x:size(1)-1) do
+   for i = 1,(#x-1) do
       --random tensor with zero mean and specified std. dev.
       tbl[#tbl+1] = torch.randn(x[i]+1,x[i+1])
    end

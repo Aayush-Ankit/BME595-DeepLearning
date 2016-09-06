@@ -13,7 +13,8 @@ function logicGates.AND(x,y)
    in_vec[1]  = (x == true) and 1 or 0
    in_vec[2]  = (y == true) and 1 or 0
 
-   nn.build(torch.Tensor({2,1}))
+   --nn.build(torch.Tensor({2,1}))
+   nn.build({2,1})
    tbl[1] = torch.Tensor({{20,20,-30}}):t()
 
    return (((nn.forward (in_vec))[1][1]) > 0.5)
@@ -26,7 +27,8 @@ function logicGates.OR(x,y)
    in_vec[1]  = (x == true) and 1 or 0
    in_vec[2]  = (y == true) and 1 or 0
 
-   nn.build(torch.Tensor({2,1}))
+   --nn.build(torch.Tensor({2,1}))
+   nn.build({2,1})
    tbl[1] = torch.Tensor({{20,20,-10}}):t()
 
    return ((nn.forward (in_vec))[1][1] > 0.5)
@@ -39,7 +41,8 @@ function logicGates.NOT(x)
    in_vec[1]  = (x == true) and 1 or 0
    --in_vec[2]  = (x == true) and 1 or 0
 
-   nn.build(torch.Tensor({1,1}))
+   --nn.build(torch.Tensor({1,1}))
+   nn.build({1,1})
    tbl[1] = torch.Tensor({{-20,10}}):t()
 
    return ((nn.forward (in_vec))[1][1] > 0.5)
