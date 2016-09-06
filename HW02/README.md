@@ -8,7 +8,7 @@
 2. getLayer() - returns the theta matrix corresponding lo **layer(i)** and **layer(i+1)**
 3. forward() - propagates input across the neural network and returns the final output vector.
 
-### LG API :- (tales boolean inputs and returns boolean output)
+### LG API :- (takes boolean inputs and returns boolean output)
 1. AND - logical **AND** of two inputs
 2. OR - logical **OR** of two inputs
 3. NOT - logical **NOT** of an inputs
