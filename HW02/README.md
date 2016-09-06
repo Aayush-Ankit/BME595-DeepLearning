@@ -2,3 +2,7 @@
 
 ## NN API has three functions build(), getLayer() and forward().
 ## LG API has four functions AND, OR, NOT, XOR.
+
+### NN API functions :-
+1.
+2.
