@@ -3,9 +3,6 @@
 torch.setdefaulttensortype('torch.FloatTensor')
 lg = require'logicGates'
 
---empty table for NN thetas
-tbl = {}
-
 --create input vector
 x = {true, true, false, false}
 y = {true, false, true, false}

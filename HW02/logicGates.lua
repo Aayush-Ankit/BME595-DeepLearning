@@ -3,9 +3,7 @@ torch.setdefaulttensortype('torch.FloatTensor')
 local nn = require 'NeuralNetwork'
 
 local logicGates =  {}
---tbl contains the network values
---tbl =  {}
-
+local theta
 function logicGates.AND(x,y)
 
    --convert boolean to float
@@ -15,8 +13,11 @@ function logicGates.AND(x,y)
 
    --nn.build(torch.Tensor({2,1}))
    nn.build({2,1})
-   tbl[1] = torch.Tensor({{20,20,-30}}):t()
-
+   theta = nn.getLayer(1)
+   --theta[1] = torch.Tensor({{20,20,-30}}):t()
+   theta[1] = 20
+   theta[2] = 20
+   theta[3] = -30
    return (((nn.forward (in_vec))[1][1]) > 0.5)
 end
 
@@ -29,7 +30,11 @@ function logicGates.OR(x,y)
 
    --nn.build(torch.Tensor({2,1}))
    nn.build({2,1})
-   tbl[1] = torch.Tensor({{20,20,-10}}):t()
+   theta = nn.getLayer(1)
+   --theta[1] = torch.Tensor({{20,20,-10}}):t()
+   theta[1] = 20
+   theta[2] = 20
+   theta[3] = -10
 
    return ((nn.forward (in_vec))[1][1] > 0.5)
 end
@@ -39,12 +44,12 @@ function logicGates.NOT(x)
    --convert boolean to float
    local in_vec = torch.Tensor(1,1)
    in_vec[1]  = (x == true) and 1 or 0
-   --in_vec[2]  = (x == true) and 1 or 0
 
-   --nn.build(torch.Tensor({1,1}))
    nn.build({1,1})
-   tbl[1] = torch.Tensor({{-20,10}}):t()
-
+   theta = nn.getLayer(1)
+   --theta[1] = torch.Tensor({{-20,10}}):t()
+   theta[1] = -20
+   theta[2] = 10
    return ((nn.forward (in_vec))[1][1] > 0.5)
 end
 
