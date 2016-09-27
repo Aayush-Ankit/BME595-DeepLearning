@@ -1,6 +1,6 @@
 --This is the API for digit recognition on MNIST dataset
 torch.setdefaulttensortype('torch.FloatTensor')
-require 'gnuplot'
+--require 'gnuplot'
 local nn = require 'NeuralNetwork'
 local img2num = {}
 
@@ -22,7 +22,7 @@ local in_size = 784
 local num_hidden = 10
 local num_class = 10
 local net_size = {in_size, num_hidden, num_hidden, num_class}
-local num_layers = #(net_size)
+local num_layers = #(net_size)-1
 local theta_best = {} -- stores the model with least Jcv
 
 -- function to convert a labels to onehot encodings
@@ -112,13 +112,13 @@ function img2num.train ()
 
       -- store th cv accuracy
       cv_acc[j] = pred_acc (cv_out, label_cv_t)
-      gnuplot.figure(1)
-      gnuplot.plot('Classification Accurcay', cv_acc[{{1,j}}])
+      --gnuplot.figure(1)
+      --gnuplot.plot('Classification Accurcay', cv_acc[{{1,j}}])
 
       --print ("Iteration:", k)
       --print ("tr_error:", tr_error[k-1])
-      gnuplot.figure(2)
-      gnuplot.plot({'Training Error',tr_error[{{1,j}}]}, {'Crossvalidation Error',cv_error[{{1,j}}]})
+      --gnuplot.figure(2)
+      --gnuplot.plot({'Training Error',tr_error[{{1,j}}]}, {'Crossvalidation Error',cv_error[{{1,j}}]})
    end
 
 end
