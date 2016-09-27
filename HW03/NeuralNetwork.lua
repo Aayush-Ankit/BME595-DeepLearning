@@ -6,7 +6,7 @@ local tbl = {} -- network parameters
 local out = {} -- neruon outputs of each layer for forward propagartion
 local de_dtheta = {} -- err_gradients computer by back-prop
 
---destroys any previosu table instance
+--destroys any previosly table instance
 local function destroy ()
    tbl = {}
 end
@@ -15,7 +15,7 @@ function NeuralNetwork.build (x)
    -- generates a random distribution with the specified std. dev.
    destroy()
    for i = 1,(#x-1) do
-      tbl[#tbl+1] = (torch.randn(x[i]+1,x[i+1]))*(1/torch.pow(x[i],1/2))
+      tbl[#tbl+1] = (torch.randn(x[i]+1,x[i+1]))/(torch.pow(x[i]+1,0.5))
    end
    return tbl
 end
@@ -52,32 +52,13 @@ end
 function NeuralNetwork.backward (x)
    -- de_dtheta table contains de/dtheta for all thetas
    -- local_error table contains local_erros for each layer
-
-   --[[print ("Back Propagation in action")
-   print ("Output labels:")
-   print (label)
-   print ("Layerwise Outputs:\n")
-   print (out[1])
-   print (out[2])
-   print (out[3]) --]]
-
    local local_error = {}
 
    --compute local error for output layer
    local err_grad = error_gradient(x)
-   --print ("Error Gradient:\n")
-   --print (err_grad) -- debug
-
    local sig_grad = sigmoid_gradient(out[#tbl+1])
-   --print ("sig_grad:\n")
-   --print (sig_grad) -- debug
-
    local_error[#tbl+1] = torch.cmul(err_grad, sig_grad)
    local_error[#tbl+1] = torch.cat(local_error[#tbl+1], torch.ones(1, out[#tbl+1]:size(1)) ,1)
-   --print (err_grad:size()) --debug
-   --print (sig_grad:size())
-   --print ("Local_Error_Last:\n")
-   --print (local_error[#tbl+1])
 
    -- back-prop to compute local error for layers other than output layer
    -- in every layer, last neuron is the bias term
@@ -86,54 +67,25 @@ function NeuralNetwork.backward (x)
       local p1 = tbl[i] * (local_error[i+1])[{{1,-2}, {}}]
       local out_temp = torch.cat(out[i], torch.ones(out[i]:size(1),1), 2)
       local p2 = (sigmoid_gradient(out_temp))
-
-      --[[print ("p1:\n")
-      print (p1)
-      print (p1:size())
-
-      print ("p2:\n")
-      print (p2) --debug
-      print (p2:size())--]]
-
       local_error[i] = torch.cmul (p1,p2)
-      --print (local_error[i])
-      --print ("local_error:\n")
    end
 
    for i = 1,(#tbl) do
       local local_err_temp = (local_error[i+1])[{{1,-2} , {}}]
       local a_hat = torch.cat(out[i], torch.ones(out[i]:size(1),1),2)
-      de_dtheta[i] = (local_err_temp * a_hat) / (out[1]:size(1))
-
-      --[[print("Local_error:\n")
-      print (local_err_temp)
-
-      print("a_hat:\n")
-      print (a_hat)
-
-      print ("Layer No:\t", i)
-      print (de_dtheta[i]) -- debug
-      print (de_dtheta[i]:size())--]]
+      de_dtheta[i] = (local_err_temp * a_hat) / (out[i]:size(2))
+      --de_dtheta[i] = (local_err_temp * a_hat)
    end
-
-   return de_dtheta
 end
 
 -- functions to update parameters
 function NeuralNetwork.updateParams (eta)
    for i =1,(#tbl) do
-      --print (tbl[i]:t())
-      --print (de_dtheta[i])
+      --print (tbl[i])
       tbl[i] = (tbl[i]:t() - (eta*de_dtheta[i])):t()
-      --print (tbl[i]:t())
+      de_dtheta[i]:zero()
+      --print (tbl[i])
    end
 end
 
 return NeuralNetwork
-
-
-
-
-
-
-

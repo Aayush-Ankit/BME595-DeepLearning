@@ -1,6 +1,6 @@
 --This is the API for logic gates
 torch.setdefaulttensortype('torch.FloatTensor')
---require 'gnuplot'
+require 'gnuplot'
 local nn = require 'NeuralNetwork'
 
 --local logicGate tables
@@ -12,7 +12,7 @@ lg['AND'] = AND lg['OR'] = OR lg['NOT'] = NOT lg['XOR'] = XOR
 local theta -- upon the function call getLayer this refrences the theta table
 
 -- other local variable
-local eta = 0.03 -- learning rate
+local eta = 0.3 -- learning rate
 local max_iter = 1000000
 local epsilon = 0.08
 local lst_idx
@@ -85,9 +85,9 @@ function AND.train ()
    theta[1] = model[min_cv_idx][1]
    theta[2] = model[min_cv_idx][2]
    theta[3] = model[min_cv_idx][3]
-   --print ("Last Iteration:",lst_idx)
-   --gnuplot.figure(1)
-   --gnuplot.plot({'AND Training Error',tr_error[{{1,lst_idx}}]}, {'AND Crossvalidation Error',cv_error[{{1,lst_idx}}]})
+   print ("Last Iteration:",lst_idx)
+   gnuplot.figure(1)
+   gnuplot.plot({'AND Training Error',tr_error[{{1,lst_idx}}]}, {'AND Crossvalidation Error',cv_error[{{1,lst_idx}}]})
 end
 
 function AND.set () -- Sets the user defined values as tehta for reproducing HW02 results
@@ -175,9 +175,9 @@ function OR.train ()
    theta[1] = model[min_cv_idx][1]
    theta[2] = model[min_cv_idx][2]
    theta[3] = model[min_cv_idx][3]
-   --print ("Last Iteration:",lst_idx)
-   --gnuplot.figure(2)
-   --gnuplot.plot({'OR Training Error',tr_error[{{1,lst_idx}}]}, {'OR Crossvalidation Error',cv_error[{{1,lst_idx}}]})
+   print ("Last Iteration:",lst_idx)
+   gnuplot.figure(2)
+   gnuplot.plot({'OR Training Error',tr_error[{{1,lst_idx}}]}, {'OR Crossvalidation Error',cv_error[{{1,lst_idx}}]})
 end
 
 function OR.set () -- Sets the user defined values as tehta for reproducing HW02 results
@@ -261,9 +261,9 @@ function NOT.train ()
    theta = nn.getLayer(1)
    theta[1] = model[min_cv_idx][1]
    theta[2] = model[min_cv_idx][2]
-   --print ("Last Iteration:",lst_idx)
-   --gnuplot.figure(3)
-   --gnuplot.plot({'NOT Training Error',tr_error[{{1,lst_idx}}]}, {'NOT Crossvalidation Error',cv_error[{{1,lst_idx}}]})
+   print ("Last Iteration:",lst_idx)
+   gnuplot.figure(3)
+   gnuplot.plot({'NOT Training Error',tr_error[{{1,lst_idx}}]}, {'NOT Crossvalidation Error',cv_error[{{1,lst_idx}}]})
 end
 
 function NOT.set () -- Sets the user defined values as tehta for reproducing HW02 results
@@ -349,9 +349,9 @@ function XOR.train ()
    theta[1] = model[min_cv_idx][1]
    theta[2] = model[min_cv_idx][2]
    theta[3] = model[min_cv_idx][3]
-   --print ("Last Iteration:",lst_idx)
-   --gnuplot.figure(4)
-   --gnuplot.plot({'XOR Training Error',tr_error[{{1,lst_idx}}]}, {'XOR Crossvalidation Error',cv_error[{{1,lst_idx}}]})
+   print ("Last Iteration:",lst_idx)
+   gnuplot.figure(4)
+   gnuplot.plot({'XOR Training Error',tr_error[{{1,lst_idx}}]}, {'XOR Crossvalidation Error',cv_error[{{1,lst_idx}}]})
 end
 
 function XOR.set () -- Sets the user defined values as tehta for reproducing HW02 results
