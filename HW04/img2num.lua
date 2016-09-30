@@ -1,6 +1,6 @@
 --This is the API for digit recognition on MNIST dataset
 torch.setdefaulttensortype('torch.FloatTensor')
-require 'gnuplot'
+--require 'gnuplot'
 local nn = require 'nn'
 local img2num = {}
 
@@ -14,9 +14,9 @@ local testset_size = 500
 
 -- training spec. variables
 local batch_size = 60
-local max_iter = 1000000 -- one mini-batch per iteration
+local max_iter = 500 -- one mini-batch per iteration
 local eta = 0.15
-local epsilon = 0.05
+local epsilon = 0.005
 
 -- network parameters
 local in_size = 784
@@ -62,6 +62,8 @@ function img2num.train ()
    local last_iter = 0 -- last iteration before training stopped
    local cv_error = torch.zeros(max_iter)
    local tr_error = torch.zeros(max_iter)
+   local cv_out = torch.zeros(num_class, testset_size)
+   local label_cv_t = torch.zeros(num_class, testset_size)
    local cv_acc = torch.zeros(max_iter)
    local perm
 
@@ -69,6 +71,7 @@ function img2num.train ()
    local loss = nn.MSECriterion()
 
    -- begin training
+   --print ("Training")
    for j = 1,max_iter do
 
       -- change the permutation after the entire dataset has been traversed
@@ -101,8 +104,6 @@ function img2num.train ()
       net:updateParameters(eta)
 
       -- run the model on crossvalidation set to find jcv and accuracy
-      local label_cv_t = torch.zeros(num_class, testset_size)
-      local cv_out = torch.zeros(num_class, testset_size)
       for i = 1,testset_size do
          local data = (((testset[i].x):float())/255):view(in_size)
          label_cv_t[{{}, i}] = onehot(testset[i].y)
@@ -111,24 +112,25 @@ function img2num.train ()
       end
 
       -- stopping condition for training
-      --if (cv_error[j] < epsilon) then break end
+      if ((cv_error[j] < epsilon) or (j == max_iter)) then break end
 
       -- store th cv accuracy
       cv_acc[j] = pred_acc (cv_out, label_cv_t)
-      gnuplot.figure(1)
-      gnuplot.plot('Classification Accurcay', cv_acc[{{1,j}}])
+      --gnuplot.figure(1)
+      --gnuplot.plot('Classification Accurcay', cv_acc[{{1,j}}])
 
-      --print ("Iteration:", k)
-      --print ("tr_error:", tr_error[k-1])
-      gnuplot.figure(2)
-      gnuplot.plot({'Training Error',tr_error[{{1,j}}]}, {'Crossvalidation Error',cv_error[{{1,j}}]})
+      local cv_out = torch.zeros(num_class, testset_size)
+      --print ("Iteration:", j)
+      --print ("tr_error:", tr_error[j])
+      --gnuplot.figure(2)
+      --gnuplot.plot({'Training Error',tr_error[{{1,j}}]}, {'Crossvalidation Error',cv_error[{{1,j}}]})
    end
-
 end
 
 function img2num.forward (x)
-         local data = (x:float()):view(in_size)
-         data = data/255
+
+         --vectorize and normalize the input before sending to the trained NN
+         local data = ((x:float())/255):view(in_size)
 
          -- do a forwrad pass across the trained nn
          local dgt_out = net:forward(data)
