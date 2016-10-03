@@ -2,31 +2,32 @@
 torch.setdefaulttensortype('torch.FloatTensor')
 require 'gnuplot'
 local nn = require 'nn'
-local img2obj = {}
+local img2num = {}
 
--- retreive the cifar-100 data
-local path = '/home/aa/BME595-DeepLearning/'
-local trainset = torch.load(path..'cifar100-train.t7')
-local testset = torch.load(path..'cifar100-test.t7')
-
-local trainset_size = (#trainset.data)[1]
---local testset_size = (#testset.data)[1]
+-- retreive the mnist data
+local mnist = require 'mnist'
+local trainset = mnist.traindataset()
+local testset = mnist.testdataset()
+local trainset_size = trainset.size
+--local testset_size = testset.size
 local testset_size = 500
 
 -- training spec. variables
 local batch_size = 10
-local max_iter = 10000 -- one mini-batch per iteration
+local max_iter = 50000 -- one mini-batch per iteration
 local eta = 0.15
-local epsilon = 0.02
+local epsilon = 0.005
 
 -- network parameters
-local in_dim = 3
-local in_size = 32
-local num_class = 100
+local in_size = 784
+local num_hidden = 50
+local num_class = 10
+local net_size = {in_size, num_hidden, num_hidden, num_class}
+local num_layers = #(net_size)-1
 
 -- function to convert a labels to onehot encodings
 local function onehot (x)
-   local label = torch.zeros(num_class)
+   local label = torch.zeros(10)
    label[x+1] = 1
    return label
 end
@@ -46,13 +47,19 @@ local function pred_acc (x, labels)
 end
 
 -- build the neural network
-local net = require 'LeNet5'
-
+local net = nn.Sequential()
+for i = 1,(#(net_size)-1) do
+   net:add(nn.Linear(net_size[i], net_size[i+1]))
+   net:add(nn.Sigmoid())
+end
 
 -- function to train the neural network
-function img2obj.train ()
+function img2num.train ()
 
    -- local variables to store training outcomes
+   local model = {}
+   local min_cv_idx = 1
+   local last_iter = 0 -- last iteration before training stopped
    local cv_error = torch.zeros(max_iter)
    local tr_error = torch.zeros(max_iter)
    local cv_out = torch.zeros(num_class, testset_size)
@@ -74,22 +81,22 @@ function img2obj.train ()
       end
 
       -- generating the required form of input and output
-      local invec_t = torch.zeros(in_dim, in_size, in_size, batch_size)
+      local invec_t = torch.zeros(in_size, batch_size)
       local label_t = torch.zeros(num_class, batch_size)
       for i = 1,batch_size do
          local idx = perm[(((j-1) * batch_size) % trainset_size) + i]
-         local data = (trainset.data[{{idx}, {}, {}, {}}]):float()
+         local data = (trainset[idx].x):float()
          data = data/255
-         invec_t[{{} , {}, {}, i}] = data:view(in_dim, in_size, in_size)
-         label_t[{{} ,i}] = onehot(trainset.label[idx])
+         --invec_t[{{} ,i}] = data:view(1, -1):t()
+         invec_t[{{} ,i}] = data:view(in_size,1)
+         label_t[{{} ,i}] = onehot(trainset[idx].y)
       end
 
       -- training with batches
       net:zeroGradParameters() -- make the parameters zero before each batch
       for k = 1,batch_size do
-         local invec_tt = invec_t[{{} , {}, {}, k}]
+         local invec_tt = invec_t[{{} ,k}]
          local label_tt = label_t[{{} ,k}]
-
          local tr_out = net:forward(invec_tt)
          tr_error[j] = loss:forward(tr_out, label_tt)
          local gradLoss = loss:backward(tr_out, label_tt)
@@ -97,49 +104,44 @@ function img2obj.train ()
       end
       net:updateParameters(eta)
 
-      -- run the model on crossvalidation set to find jcv and accuracy - fix the
-      -- cv_error ; acc and average
+      -- run the model on crossvalidation set to find jcv and accuracy
       for i = 1,testset_size do
-         local data = (((testset.data[{{i}, {}, {}, {}}]):float())/255)
-         data = data:view(in_dim, in_size, in_size)
-         label_cv_t[{{}, i}] = onehot(testset.label[i])
+         local data = (((testset[i].x):float())/255):view(in_size)
+         label_cv_t[{{}, i}] = onehot(testset[i].y)
          cv_out[{{}, i}] = net:forward(data)
          cv_error[j] = loss:forward(cv_out[{{}, i}], label_cv_t[{{}, i}])
       end
 
+
       -- store th cv accuracy
       cv_acc[j] = pred_acc (cv_out, label_cv_t)
+      --gnuplot.figure(1)
+      --gnuplot.plot('Classification Accurcay', cv_acc[{{1,j}}])
 
-      -- stopping condition for training - error/accuracy
+      -- stopping condition for training
       --if ((cv_error[j] < epsilon) or (j == max_iter)) then break end
       if ((cv_acc[j] > 90) or (j == max_iter)) then
-         print ("No of iteration to converge CNN:", j)
          stop_iter = j
          break
       end
 
-
       local cv_out = torch.zeros(num_class, testset_size)
-      print ("Iteration:", j)
-      print ("cv_error:", cv_error[j])
-      print ("cv_acc:", cv_acc[j])
-
-      -- plot the accuracy and errors
-      gnuplot.figure(1)
-      gnuplot.plot('Classification Accurcay', cv_acc[{{1,j}}])
-      gnuplot.figure(2)
-      gnuplot.plot({'Training Error',tr_error[{{1,j}}]}, {'Crossvalidation Error',cv_error[{{1,j}}]})
+      --print ("Iteration:", j)
+      --print ("cv_acc", cv_acc[j])
+      --print ("tr_error:", tr_error[j])
+      --gnuplot.figure(2)
+      --gnuplot.plot({'Training Error',tr_error[{{1,j}}]}, {'Crossvalidation Error',cv_error[{{1,j}}]})
    end
 
-    -- plot the accuracy and errors
-    --gnuplot.figure(1)
-    --gnuplot.plot('Classification Accurcay', cv_acc[{{1,stop_iter}}])
-    --gnuplot.figure(2)
-    --gnuplot.plot({'Training Error',tr_error[{{1,stop_iter}}]}, {'Crossvalidation Error',cv_error[{{1,stop_iter}}]})
+    gnuplot.figure(1)
+    gnuplot.plot('Classification Accurcay', cv_acc[{{1,stop_iter}}])
+
+    gnuplot.figure(2)
+    gnuplot.plot({'Training Error',tr_error[{{1,stop_iter}}]}, {'Crossvalidation Error',cv_error[{{1,stop_iter}}]})
 
 end
 
-function img2obj.forward (x)
+function img2num.forward (x)
 
          --vectorize and normalize the input before sending to the trained NN
          local data = ((x:float())/255):view(in_size)
@@ -149,4 +151,4 @@ function img2obj.forward (x)
          return pred_digit(dgt_out)
 end
 
-return img2obj
+return img2num

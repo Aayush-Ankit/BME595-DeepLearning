@@ -2,14 +2,14 @@
 
 torch.setdefaulttensortype('torch.FloatTensor')
 --img2num = require 'img2num'
-img2obj = require 'img2obj'
+img2num = require 'img2num'
 
 -- train the nn
 --img2num.train()
-img2obj.train()
+img2num.train()
 
 -- test the trained nn using forward function
---[[local mnist = require 'mnist'
+local mnist = require 'mnist'
 local testset = mnist.testdataset()
 --local testset_size = testset.size
 local testset_size = 10

@@ -1,0 +1,6 @@
+#COmparision for digit recognition on MNIST dataset
+batch size = 10
+learning rate = 0.15
+
+mnist_cnn = 25 sec -- ran on hp envy
+mnist_fcn = 533 sec -- ran on ecegrid
