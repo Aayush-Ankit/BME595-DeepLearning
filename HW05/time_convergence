@@ -2,5 +2,7 @@
 batch size = 10
 learning rate = 0.15
 
-mnist_cnn = 25 sec -- ran on hp envy
+mnist_lenet = 25 sec -- ran on hp envy
 mnist_fcn = 533 sec -- ran on ecegrid
+
+cifar-100_lenet = 10k iterations with 10% cv accuracy

@@ -15,7 +15,7 @@ local testset_size = 500
 
 -- training spec. variables
 local batch_size = 10
-local max_iter = 10000 -- one mini-batch per iteration
+local max_iter = 1 -- one mini-batch per iteration
 local eta = 0.15
 local epsilon = 0.02
 
@@ -48,9 +48,11 @@ end
 -- build the neural network
 local net = require 'LeNet5'
 
-
 -- function to train the neural network
 function img2obj.train ()
+
+   -- time the training
+   local time = sys.clock()
 
    -- local variables to store training outcomes
    local cv_error = torch.zeros(max_iter)
@@ -114,6 +116,8 @@ function img2obj.train ()
       --if ((cv_error[j] < epsilon) or (j == max_iter)) then break end
       if ((cv_acc[j] > 90) or (j == max_iter)) then
          print ("No of iteration to converge CNN:", j)
+         time = sys.clock() - time
+         print (time)
          stop_iter = j
          break
       end
@@ -140,13 +144,33 @@ function img2obj.train ()
 end
 
 function img2obj.forward (x)
+    --vectorize and normalize the input before sending to the trained NN
+    -- maybe the view is unnecessary
+    local data = ((x:float())/255)
+    -- do a forwrad pass across the trained nn
+    local dgt_out = net:forward(data)
+    return tostring(pred_digit(dgt_out))
+end
 
-         --vectorize and normalize the input before sending to the trained NN
-         local data = ((x:float())/255):view(in_size)
+function img2obj.view (x)
+   -- locally import the library
+   local image = require 'image'
+   -- predict the output
+   local pred = img2obj.forward(x)
+   -- diplay the image and the string
+   image.display({image = image.drawText(x, pred, 1,1, {color = {255, 0, 0}, size = 2}), zoom = 10})
+end
 
-         -- do a forwrad pass across the trained nn
-         local dgt_out = net:forward(data)
-         return pred_digit(dgt_out)
+function img2obj.cam (idx)
+   -- require the camera
+   local camera = require 'camera'
+   cam = image.Camera(idx)
+   frame = cam:forward()
+   cam:stop()
+
+   -- predict the data using the neural network
+   data = image.scale(frame, 32, 32)
+   img2obj.view(data)
 end
 
 return img2obj
