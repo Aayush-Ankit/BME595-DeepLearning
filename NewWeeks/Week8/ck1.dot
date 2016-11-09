@@ -1,0 +1,29 @@
+digraph G {
+	graph [bb="0,0,257.39,407.81"];
+	node [label="\N",
+		shape=oval
+	];
+	n1	 [height=1.041,
+		label="Node1\nmodule = nn.Tanh\lreverseMap = {}",
+		pos="128.69,148.43",
+		tooltip="[[C]]:-1_",
+		width=2.3374];
+	n2	 [height=1.041,
+		label="Node2\ninput = {}\lreverseMap = {}",
+		pos="128.69,37.477",
+		tooltip="[[C]]:-1_",
+		width=2.1606];
+	n1 -> n2	 [pos="e,128.69,75.149 128.69,110.85 128.69,102.67 128.69,93.893 128.69,85.366"];
+	n3	 [height=1.041,
+		label="Node3\nmodule = nn.Linear(20 -> 10)\lreverseMap = {}",
+		pos="128.69,259.38",
+		tooltip="[[C]]:-1_",
+		width=3.5748];
+	n3 -> n1	 [pos="e,128.69,186.1 128.69,221.8 128.69,213.63 128.69,204.85 128.69,196.32"];
+	n4	 [height=1.041,
+		label="Node4\ninput = {}\lreverseMap = {}",
+		pos="128.69,370.34",
+		tooltip="[[C]]:-1_",
+		width=2.1606];
+	n4 -> n3	 [pos="e,128.69,297.06 128.69,332.75 128.69,324.58 128.69,315.8 128.69,307.27"];
+}

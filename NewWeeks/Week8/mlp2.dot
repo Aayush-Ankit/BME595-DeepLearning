@@ -1,0 +1,47 @@
+digraph G {
+	graph [bb="0,0,257.39,740.67"];
+	node [label="\N",
+		shape=oval
+	];
+	n1	 [height=1.041,
+		label="Node1\nmodule = nn.Linear(10 -> 1)\lreverseMap = {}",
+		pos="128.69,148.43",
+		tooltip="[[C]]:-1_",
+		width=3.457];
+	n2	 [height=1.041,
+		label="Node2\ninput = {}\lreverseMap = {}",
+		pos="128.69,37.477",
+		tooltip="[[C]]:-1_",
+		width=2.1606];
+	n1 -> n2	 [pos="e,128.69,75.149 128.69,110.85 128.69,102.67 128.69,93.893 128.69,85.366"];
+	n3	 [height=1.041,
+		label="Node3\nmodule = nn.Tanh\lreverseMap = {}",
+		pos="128.69,259.38",
+		tooltip="[[C]]:-1_",
+		width=2.3374];
+	n3 -> n1	 [pos="e,128.69,186.1 128.69,221.8 128.69,213.63 128.69,204.85 128.69,196.32"];
+	n4	 [height=1.041,
+		label="Node4\nmodule = nn.Linear(10 -> 10)\lreverseMap = {}",
+		pos="128.69,370.34",
+		tooltip="[[C]]:-1_",
+		width=3.5748];
+	n4 -> n3	 [pos="e,128.69,297.06 128.69,332.75 128.69,324.58 128.69,315.8 128.69,307.27"];
+	n5	 [height=1.041,
+		label="Node5\nmodule = nn.Tanh\lreverseMap = {}",
+		pos="128.69,481.29",
+		tooltip="[[C]]:-1_",
+		width=2.3374];
+	n5 -> n4	 [pos="e,128.69,408.01 128.69,443.71 128.69,435.53 128.69,426.75 128.69,418.23"];
+	n6	 [height=1.041,
+		label="Node6\nmodule = nn.Linear(20 -> 10)\lreverseMap = {}",
+		pos="128.69,592.24",
+		tooltip="[[C]]:-1_",
+		width=3.5748];
+	n6 -> n5	 [pos="e,128.69,518.96 128.69,554.66 128.69,546.49 128.69,537.71 128.69,529.18"];
+	n7	 [height=1.041,
+		label="Node7\ninput = {}\lreverseMap = {}",
+		pos="128.69,703.2",
+		tooltip="[[C]]:-1_",
+		width=2.1606];
+	n7 -> n6	 [pos="e,128.69,629.92 128.69,665.61 128.69,657.44 128.69,648.66 128.69,640.13"];
+}
