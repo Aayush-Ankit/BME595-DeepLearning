@@ -1,11 +1,11 @@
 # Title
-Exploring Conditional Deep Belief Networks (DBN) for Energy Efficiency
+Exploring Neural Network Pruning for Energy-Efficient Hardware realizations
 
 ## Team members
-Aayush Ankit (Aayush-Ankit), Priyadarshini Panda (panda1230), Chankyu Lee ()
+Aayush Ankit (Aayush-Ankit), Chankyu Lee
 
 ### Goals
-Develop conditional stacked auto-encoders for energy-efficient training and testing. Verify the proposed framework for different data-sets and across different computation platforms.
+ANalyze the effect of network pruning on neural network's accuracy, training effort and parameter reduction.
 
 ## Challenges
-Coming up with a low-overhead and scalable framework to add the conditional control-knobs in any general DBN.
+Coming up with modules - nn.Prune to add a pruining layer in the ConvNet and MLPs
