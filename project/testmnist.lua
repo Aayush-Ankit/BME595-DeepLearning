@@ -2,7 +2,7 @@
 
 torch.setdefaulttensortype('torch.FloatTensor')
 --img2num = require 'img2num'
-img2num = require 'img2num_fcn'
+img2num = require 'img2num'
 
 -- train the nn
 --img2num.train()

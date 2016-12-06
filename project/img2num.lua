@@ -17,13 +17,20 @@ local batch_size = 10
 local max_iter = 10000 -- one mini-batch per iteration
 local eta = 0.10
 
--- parameters exclusive for pruning
-local if_prune = 0
-local pth_inc = 0.01 -- prune threshold increment
-local pth = 0;
+-- user set parameters exclusive for pruning
+local if_prune = 1
 local num_layers = 5 -- no layers that can be pruned (lenet - 5, lenet_mod = 6)
+local prune_iter = 3000
+
+-- other parameters for pruning
 local net5 = {1,4,8,10,12}
 local net6 = {1,4,6,10,12,14}
+local pth5 = torch.Tensor{0,0,0,0,0}
+local pth6 = torch.Tensor{0,0,0,0,0,0}
+local pth5_inc = 0.01* torch.Tensor{0.00025, 0.00015, 0.00008, 0.00015, 0.00015} -- prune threshold increment
+local pth6_inc = torch.Tensor{0.001, 0.0001, 0.0001, 0.0001, 0.0001, 0.001} -- prune threshold increment
+local stats5 = torch.zeros(#net5) -- stores the current network pruning stats
+local stats6 = torch.zeros(#net6)
 
 -- function to convert a labels to onehot encodings
 local function onehot (x)
@@ -46,13 +53,36 @@ local function pred_acc (x, labels)
    return (torch.eq(pred:byte(), labels:byte()):sum())/x:size(2)*100
 end
 
--- function to prune the network
-local function do_prune (net)
-
-end
 
 -- build the neural network
 local net = require 'mymodels/plenet'
+
+-- function to prune the network
+local function do_prune ()
+
+  if (num_layers == 5) then
+    pth5 = pth5 + pth5_inc
+    print ("prune th: ", pth5)
+    for layer = 1, #(net5) do
+      local ltemp = net:get(net5[layer])
+      ltemp:updatepth(pth5[layer])
+      stats5[layer] = ltemp:SeeMap()
+    end
+    print ("Prune Statistics: ", stats5)
+  end
+
+  if (num_layers == 6) then
+    pth6 = pth6 + pth6_inc
+    print ("prune th: ", pth6)
+    for layer = 1, #(net6) do
+      local ltemp = net:get(net6[layer])
+      ltemp:updatepth(pth6[layer])
+      stats6[layer] = ltemp:SeeMap()
+    end
+    print ("Prune Statistics: ", stats6)
+  end
+  print ("Prune Success!")
+end
 
 -- network parameters
 local in_dim = 1
@@ -75,14 +105,19 @@ function img2num.train ()
    local loss = nn.MSECriterion()
 
    -- begin training
-   --print ("Training")
+   print ("Training")
+   print ("If Prune: ", if_prune)
    local time = sys.clock()
 
    for j = 1,max_iter do
 
+      -- prune if flag is set
+      if ((j>prune_iter) and (if_prune==1)) then do_prune() end
+
       -- change the permutation after the entire dataset has been traversed
       if ((((j-1) * batch_size) % trainset_size) == 0) then
          perm = torch.randperm(trainset_size)
+
       end
 
       -- generating the required form of input and output
@@ -122,7 +157,7 @@ function img2num.train ()
       cv_acc[j] = pred_acc (cv_out, label_cv_t)
 
       -- stopping condition for training
-      if ((cv_acc[j] > 98) or (j == max_iter)) then
+      if ((cv_acc[j] > 99) or (j == max_iter)) then
          print ("No of iteration to converge CNN:", j)
          stop_iter = j
          time = sys.clock() - time
