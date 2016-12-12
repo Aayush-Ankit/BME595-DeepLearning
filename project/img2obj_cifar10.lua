@@ -1,7 +1,7 @@
 --This is the API for digit recognition on MNIST dataset
 torch.setdefaulttensortype('torch.FloatTensor')
 require 'gnuplot'
-require 'cunn'
+--require 'cunn'
 local nn = require 'nn'
 local img2obj = {}
 
@@ -16,9 +16,24 @@ local testset_size = 500
 
 -- training spec. variables
 local batch_size = 100
-local max_iter = 10000 -- one mini-batch per iteration
+local max_iter = 20000 -- one mini-batch per iteration
 local eta = 0.015
 local epsilon = 0.02
+
+-- user set parameters exclusive for pruning
+local if_prune = 1
+local num_layers = 6 -- no layers that can be pruned (lenet - 5, lenet_mod = 6)
+local prune_iter = 5000
+
+-- other parameters for pruning
+local net5 = {1,4,8,10,12}
+local net6 = {1,4,6,10,12,14}
+local pth5 = torch.Tensor{0,0,0,0,0}
+local pth6 = torch.Tensor{0,0,0,0,0,0}
+local pth5_inc = 0.01* torch.Tensor{0.00025, 0.00015, 0.00008, 0.00015, 0.00015} -- prune threshold increment
+local pth6_inc = 0.05* torch.Tensor{0.00035, 0.00025, 0.0001, 0.0002, 0.00015, 0.0001} -- prune threshold increment
+local stats5 = torch.zeros(#net5) -- stores the current network pruning stats
+local stats6 = torch.zeros(#net6)
 
 -- network parameters
 local in_dim = 3
@@ -47,19 +62,47 @@ local function pred_acc (x, labels)
 end
 
 -- build the neural network
-local net = require 'mymodels/lenet_mod'
-net = net:cuda()
+net = require 'mymodels/plenet_mod'
+--net = net:cuda()
+
+-- function to prune the network
+local function do_prune ()
+
+  if (num_layers == 5) then
+    pth5 = pth5 + pth5_inc
+    print ("prune th: ", pth5)
+    for layer = 1, #(net5) do
+      local ltemp = net:get(net5[layer])
+      ltemp:updatepth(pth5[layer])
+      stats5[layer] = ltemp:SeeMap()
+    end
+    print ("Prune Statistics: ", stats5)
+  end
+
+  if (num_layers == 6) then
+    pth6 = pth6 + pth6_inc
+    print ("prune th: ", pth6)
+    for layer = 1, #(net6) do
+      local ltemp = net:get(net6[layer])
+      ltemp:updatepth(pth6[layer])
+      stats6[layer] = ltemp:SeeMap()
+    end
+    print ("Prune Statistics: ", stats6)
+  end
+  print ("Prune Success!")
+end
 
 -- function to train the neural network
 function img2obj.train ()
 
    -- time the training
+   print ("If Prune: ", if_prune)
    local time = sys.clock()
 
    -- local variables to store training outcomes
-   local cv_error = torch.zeros(max_iter):cuda()
-   local tr_error = torch.zeros(max_iter):cuda()
-   local cv_out = torch.zeros(num_class, testset_size):cuda() -- this term must be cuda tensor
+   local cv_error = torch.zeros(max_iter)
+   local tr_error = torch.zeros(max_iter)
+   local cv_out = torch.zeros(num_class, testset_size) -- this term must be cuda tensor
    local label_cv_t = torch.zeros(num_class, testset_size)
    local cv_acc = torch.zeros(max_iter)
    local perm
@@ -67,13 +110,16 @@ function img2obj.train ()
 
    -- define the loss fucntion (error function)
    local loss = nn.MSECriterion()
-   loss = loss:cuda()
+   --loss = loss:cuda()
 
    local invec_tt
    local label_tt
 
    -- begin training
    for j = 1,max_iter do
+
+      -- prune if flag is set
+      if ((j>prune_iter) and (if_prune==1)) then do_prune() end
 
       -- change the permutation after the entire dataset has been traversed
       if ((((j-1) * batch_size) % trainset_size) == 0) then
@@ -97,8 +143,8 @@ function img2obj.train ()
          invec_tt = invec_t[{{} , {}, {}, k}]
          label_tt = label_t[{{} ,k}]
 
-         invec_tt = invec_tt:cuda()
-         label_tt = label_tt:cuda()
+         invec_tt = invec_tt
+         label_tt = label_tt
 
          local tr_out = net:forward(invec_tt)
          tr_error[j] = loss:forward(tr_out, label_tt)
@@ -115,8 +161,8 @@ function img2obj.train ()
          label_cv_t[{{}, m}] = onehot(testset.label[m])
          local label_cv_tt = label_cv_t[{{}, m}]
 
-         invec_tt = data_cv:cuda()
-         label_tt = label_cv_tt:cuda()
+         invec_tt = data_cv
+         label_tt = label_cv_tt
 
          cv_out[{{}, m}] = net:forward(invec_tt)
          cv_error[j] = loss:forward(cv_out[{{}, m}], label_tt)
@@ -127,7 +173,7 @@ function img2obj.train ()
 
       -- stopping condition for training - error/accuracy
       --if ((cv_error[j] < epsilon) or (j == max_iter)) then break end
-      if ((cv_acc[j] > 90) or (j == max_iter)) then
+      if ((cv_acc[j] > 63) or (j == max_iter)) then
          print ("No of iteration to converge CNN:", j)
          time = sys.clock() - time
          print (time)
